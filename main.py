@@ -48,6 +48,8 @@ def download_book(book_id):
     soup = BeautifulSoup(response.text, 'lxml')
     title, _, author = soup.find('h1').text.split('   ')
 
+    download_comments(response, title)
+
     try:
         download_txt(book_text_url, title)
         download_image(response)
@@ -69,6 +71,15 @@ def download_image(book_response):
         image.write(response.content)
 
 
+def download_comments(book_response, book_title):
+    soup = BeautifulSoup(book_response.text, 'lxml')
+    comments = soup.find_all('div', {'class': 'texts'})
+    for comment_html in comments:
+        comment = comment_html.find_next('span', {'class': 'black'}).text
+        with open(os.path.join('comments', f'{book_title}.txt'), 'a') as file:
+            file.write(f'{comment}\n')
+
+
 def creating_books_directory(name):
     if not os.path.exists(name):
         os.mkdir(name)
@@ -77,5 +88,6 @@ def creating_books_directory(name):
 if __name__ == '__main__':
     creating_books_directory('books')
     creating_books_directory('images')
+    creating_books_directory('comments')
     for book_id in range(1, 11):
         download_book(book_id)
