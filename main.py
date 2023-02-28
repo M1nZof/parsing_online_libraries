@@ -48,13 +48,15 @@ def download_book(book_id):
     soup = BeautifulSoup(response.text, 'lxml')
     title, _, author = soup.find('h1').text.split('   ')
 
-    download_comments(response, title)
+    download_genre(response)
 
     try:
         download_txt(book_text_url, title)
         download_image(response)
     except HTTPError:
         return
+
+    download_comments(response, title)
 
 
 def download_image(book_response):
@@ -78,6 +80,12 @@ def download_comments(book_response, book_title):
         comment = comment_html.find_next('span', {'class': 'black'}).text
         with open(os.path.join('comments', f'{book_title}.txt'), 'a') as file:
             file.write(f'{comment}\n')
+
+
+def download_genre(book_response):
+    soup = BeautifulSoup(book_response.text, 'lxml')
+    genre_tag = soup.find('span', {'class': 'd_book'}).find_all('a')
+    print([genre.text for genre in genre_tag])
 
 
 def creating_books_directory(name):
