@@ -48,7 +48,7 @@ def download_book(book_id):
     soup = BeautifulSoup(response.text, 'lxml')
     title, _, author = soup.find('h1').text.split('   ')
 
-    download_genre(response)
+    # download_genre(response)
 
     try:
         download_txt(book_text_url, title)
@@ -56,7 +56,7 @@ def download_book(book_id):
     except HTTPError:
         return
 
-    download_comments(response, title)
+    # download_comments(response)
 
 
 def download_image(book_response):
@@ -73,19 +73,64 @@ def download_image(book_response):
         image.write(response.content)
 
 
-def download_comments(book_response, book_title):
+def parse_book_image(book_response):
     soup = BeautifulSoup(book_response.text, 'lxml')
-    comments = soup.find_all('div', {'class': 'texts'})
-    for comment_html in comments:
+    image_tag = soup.find('div', {'class': 'bookimage'}).select('img')
+    image_endlink = [item['src'] for item in image_tag][0]
+    # image_name = image_endlink.split('/')[2]
+    image_link = urljoin('https://tululu.org', image_endlink)
+
+    return image_link
+
+    # response = requests.get(image_link)
+    # response.raise_for_status()
+
+    # with open(os.path.join('images', f'{image_name}'), 'wb') as image:
+    #     image.write(response.content)
+
+
+
+def parse_page_comments(book_response):
+    soup = BeautifulSoup(book_response.text, 'lxml')
+    comment_tag = soup.find_all('div', {'class': 'texts'})
+    # print(comments)
+    comments = []
+    for comment_html in comment_tag:
         comment = comment_html.find_next('span', {'class': 'black'}).text
-        with open(os.path.join('comments', f'{book_title}.txt'), 'a') as file:
-            file.write(f'{comment}\n')
+        comments.append(comment)
+
+    return comments
+
+    # with open(os.path.join('comments', f'{book_title}.txt'), 'a') as file:
+    #     file.write(f'{comment}\n')
 
 
-def download_genre(book_response):
+def parse_book_genre(book_response):
     soup = BeautifulSoup(book_response.text, 'lxml')
     genre_tag = soup.find('span', {'class': 'd_book'}).find_all('a')
-    print([genre.text for genre in genre_tag])
+
+    return [genre.text for genre in genre_tag]
+
+
+def parse_book_page(book_id):
+    book_url = f'https://tululu.org/b{book_id}/'
+    response = requests.get(book_url)
+    response.raise_for_status()
+
+    try:
+        check_for_redirect(response)
+    except HTTPError:
+        return
+
+    soup = BeautifulSoup(response.text, 'lxml')
+    title, _, author = soup.find('h1').text.split('   ')
+
+    genre = parse_book_genre(response)
+    comments = parse_page_comments(response)
+    # image_link = parse_book_image(response)
+    # text = download_txt()
+
+    return title, author, genre, comments
 
 
 def creating_books_directory(name):
@@ -94,8 +139,11 @@ def creating_books_directory(name):
 
 
 if __name__ == '__main__':
-    creating_books_directory('books')
-    creating_books_directory('images')
-    creating_books_directory('comments')
-    for book_id in range(1, 11):
-        download_book(book_id)
+    title, author, genre, comments = parse_book_page(4)
+    print(f'{title} | {author} | {genre} | {comments}')
+
+    # creating_books_directory('books')
+    # creating_books_directory('images')
+    # creating_books_directory('comments')
+    # for book_id in range(5, 11):
+    #     download_book(book_id)
