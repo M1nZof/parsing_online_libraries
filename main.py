@@ -1,4 +1,6 @@
 import os
+import argparse
+
 from urllib.parse import urlparse, urljoin
 
 import requests
@@ -27,13 +29,13 @@ def download_txt(url, filename, folder='books/'):
     except HTTPError:
         raise HTTPError
 
-    with open(os.path.join(folder, f'{book_id}. {sanitazed_filename}'), 'w') as book:
+    with open(os.path.join(folder, f'{book_id}. {sanitazed_filename}'), 'wt', encoding='utf-8') as book:
         book.write(response.text)
 
-    return f"{folder}{sanitazed_filename}"
+    # return f"{folder}{sanitazed_filename}"
 
 
-def download_book(book_id):
+def download_book(book_id, title):
     book_url = f'https://tululu.org/b{book_id}/'
     book_text_url = f'http://tululu.org/txt.php?id={book_id}'
 
@@ -43,19 +45,19 @@ def download_book(book_id):
     try:
         check_for_redirect(response)
     except HTTPError:
-        return
+        return False
 
-    soup = BeautifulSoup(response.text, 'lxml')
-    title, _, author = soup.find('h1').text.split('   ')
+    # soup = BeautifulSoup(response.text, 'lxml')
+    # title, _, author = soup.find('h1').text.split('   ')
 
     # download_genre(response)
 
     try:
         download_txt(book_text_url, title)
-        download_image(response)
+        # download_image(response)
     except HTTPError:
-        return
-
+        return False
+    return True
     # download_comments(response)
 
 
@@ -127,8 +129,6 @@ def parse_book_page(book_id):
 
     genre = parse_book_genre(response)
     comments = parse_page_comments(response)
-    # image_link = parse_book_image(response)
-    # text = download_txt()
 
     return title, author, genre, comments
 
@@ -139,11 +139,22 @@ def creating_books_directory(name):
 
 
 if __name__ == '__main__':
-    title, author, genre, comments = parse_book_page(4)
-    print(f'{title} | {author} | {genre} | {comments}')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('start_id', help='С какого ID начинать скачивание книг', type=int)
+    parser.add_argument('end_id', help='Каким ID заканчивать скачивание книг', type=int)
 
-    # creating_books_directory('books')
-    # creating_books_directory('images')
-    # creating_books_directory('comments')
-    # for book_id in range(5, 11):
-    #     download_book(book_id)
+    args = parser.parse_args()
+
+    creating_books_directory('books')
+
+    for book_id in range(args.start_id, args.end_id):
+        try:
+            title, author, genre, comments = parse_book_page(book_id)
+        except TypeError:
+            continue
+
+        if download_book(book_id, title):
+            print(f'Название: {title}\n'
+                  f'Автор: {author}\n'
+                  f'Жанр: {genre}\n'
+                  f'Комментарии: {comments}\n\n')
