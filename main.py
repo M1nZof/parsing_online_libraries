@@ -32,8 +32,6 @@ def download_txt(url, filename, folder='books/'):
     with open(os.path.join(folder, f'{book_id}. {sanitazed_filename}'), 'wt', encoding='utf-8') as book:
         book.write(response.text)
 
-    # return f"{folder}{sanitazed_filename}"
-
 
 def download_book(book_id, title):
     book_url = f'https://tululu.org/b{book_id}/'
@@ -47,18 +45,11 @@ def download_book(book_id, title):
     except HTTPError:
         return False
 
-    # soup = BeautifulSoup(response.text, 'lxml')
-    # title, _, author = soup.find('h1').text.split('   ')
-
-    # download_genre(response)
-
     try:
         download_txt(book_text_url, title)
-        # download_image(response)
     except HTTPError:
         return False
     return True
-    # download_comments(response)
 
 
 def download_image(book_response):
@@ -79,32 +70,21 @@ def parse_book_image(book_response):
     soup = BeautifulSoup(book_response.text, 'lxml')
     image_tag = soup.find('div', {'class': 'bookimage'}).select('img')
     image_endlink = [item['src'] for item in image_tag][0]
-    # image_name = image_endlink.split('/')[2]
     image_link = urljoin('https://tululu.org', image_endlink)
 
     return image_link
-
-    # response = requests.get(image_link)
-    # response.raise_for_status()
-
-    # with open(os.path.join('images', f'{image_name}'), 'wb') as image:
-    #     image.write(response.content)
-
 
 
 def parse_page_comments(book_response):
     soup = BeautifulSoup(book_response.text, 'lxml')
     comment_tag = soup.find_all('div', {'class': 'texts'})
-    # print(comments)
+
     comments = []
     for comment_html in comment_tag:
         comment = comment_html.find_next('span', {'class': 'black'}).text
         comments.append(comment)
 
     return comments
-
-    # with open(os.path.join('comments', f'{book_title}.txt'), 'a') as file:
-    #     file.write(f'{comment}\n')
 
 
 def parse_book_genre(book_response):
