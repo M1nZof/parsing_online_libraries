@@ -113,10 +113,6 @@ def parse_book_page(book_id):
     return title, author, genre, comments
 
 
-def creating_books_directory(name):
-    os.makedirs(name, exist_ok=True)
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Скрипт загрузки книг с сайта https://tululu.org')
     parser.add_argument('start_id', help='С какого ID начинать скачивание книг', type=int)
@@ -124,7 +120,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    creating_books_directory('books')
+    os.makedirs('books', exist_ok=True)
 
     for book_id in range(args.start_id, args.end_id):
         try:
