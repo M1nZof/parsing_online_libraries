@@ -114,8 +114,7 @@ def parse_book_page(book_id):
 
 
 def creating_books_directory(name):
-    if not os.path.exists(name):
-        os.mkdir(name)
+    os.makedirs(name, exist_ok=True)
 
 
 if __name__ == '__main__':
