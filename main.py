@@ -97,6 +97,19 @@ def parse_book_genre(book_response):
 
 
 def parse_book_page(book_id):
+    book_page = download_book_page(book_id)
+
+    if book_page:
+        soup = BeautifulSoup(book_page.text, 'lxml')
+        title, _, author = soup.find('h1').text.split('   ')
+
+        genre = parse_book_genre(book_page)
+        comments = parse_page_comments(book_page)
+
+        return title, author, genre, comments
+
+
+def download_book_page(book_id):
     book_url = f'https://tululu.org/b{book_id}/'
     response = requests.get(book_url)
     response.raise_for_status()
@@ -105,14 +118,7 @@ def parse_book_page(book_id):
         check_for_redirect(response)
     except HTTPError:
         return
-
-    soup = BeautifulSoup(response.text, 'lxml')
-    title, _, author = soup.find('h1').text.split('   ')
-
-    genre = parse_book_genre(response)
-    comments = parse_page_comments(response)
-
-    return title, author, genre, comments
+    return response
 
 
 if __name__ == '__main__':
