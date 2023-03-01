@@ -2,6 +2,7 @@ import os
 import argparse
 import sys
 import time
+import urllib
 
 from urllib.parse import urlparse, urljoin
 
@@ -48,7 +49,9 @@ def download_image(image_link, book_id):
     response = requests.get(image_link)
     response.raise_for_status()
 
-    with open(os.path.join('images', f'{book_id}'), 'wb') as image:
+    image_name = urlparse(image_link).path.split('/')[2]
+
+    with open(os.path.join('images', image_name), 'wb') as image:
         image.write(response.content)
 
 
@@ -84,10 +87,11 @@ def parse_book_page(book_id):
         soup = BeautifulSoup(book_page.text, 'lxml')
         title, _, author = soup.find('h1').text.split('   ')
 
+        image_link = parse_book_image(soup, book_page.url)
         genre = parse_book_genres(soup)
         comments = parse_page_comments(soup)
 
-        return title, author, genre, comments
+        return title, author, genre, comments, image_link
 
 
 def download_book_page(book_id):
@@ -110,12 +114,15 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     os.makedirs('books', exist_ok=True)
+    os.makedirs('images', exist_ok=True)
 
     for book_id in range(args.start_id, args.end_id):
         try:
-            title, author, genre, comments = parse_book_page(book_id)
+            title, author, genre, comments, image_link = parse_book_page(book_id)
 
             if download_book(book_id, title):
+                download_image(image_link, book_id)
+
                 print(f'Название: {title}\n'
                       f'Автор: {author}\n'
                       f'Жанр: {genre}\n'
