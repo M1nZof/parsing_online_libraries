@@ -62,10 +62,10 @@ def download_image(image_link, book_id):
         image.write(response.content)
 
 
-def parse_book_image(soup):
+def parse_book_image(soup, book_url):
     image_tag = soup.find('div', {'class': 'bookimage'}).select('img')
     image_endlink = [item['src'] for item in image_tag][0]
-    image_link = urljoin('https://tululu.org', image_endlink)
+    image_link = urljoin(book_url, image_endlink)
 
     return image_link
 
