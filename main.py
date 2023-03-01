@@ -54,16 +54,11 @@ def download_book(book_id, title):
     return True
 
 
-def download_image(soup):
-    image_tag = soup.find('div', {'class': 'bookimage'}).select('img')
-    image_endlink = [item['src'] for item in image_tag][0]
-    image_name = image_endlink.split('/')[2]
-    image_link = urljoin('https://tululu.org', image_endlink)
-
+def download_image(image_link, book_id):
     response = requests.get(image_link)
     response.raise_for_status()
 
-    with open(os.path.join('images', f'{image_name}'), 'wb') as image:
+    with open(os.path.join('images', f'{book_id}'), 'wb') as image:
         image.write(response.content)
 
 
