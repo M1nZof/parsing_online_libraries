@@ -26,11 +26,6 @@ def download_txt(url, filename, folder='books/'):
     response = requests.get(url)
     response.raise_for_status()
 
-    try:
-        check_for_redirect(response, check_len=True)
-    except HTTPError:
-        raise HTTPError
-
     with open(os.path.join(folder, f'{book_id}. {sanitazed_filename}'), 'wt', encoding='utf-8') as book:
         book.write(response.text)
 
@@ -41,11 +36,6 @@ def download_book(book_id, title):
 
     response = requests.get(book_url)
     response.raise_for_status()
-
-    try:
-        check_for_redirect(response)
-    except HTTPError:
-        return False
 
     try:
         download_txt(book_text_url, title)
@@ -133,7 +123,7 @@ if __name__ == '__main__':
 
         except TypeError:
             continue
-        except requests.exceptions.HTTPError:
+        except HTTPError:
             print('Ошибка запроса на сервер\n', file=sys.stderr)
         except requests.exceptions.ConnectionError:
             print('Ошибка соединения', file=sys.stderr)
