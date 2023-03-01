@@ -118,7 +118,7 @@ def creating_books_directory(name):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description='Скрипт загрузки книг с сайта https://tululu.org')
     parser.add_argument('start_id', help='С какого ID начинать скачивание книг', type=int)
     parser.add_argument('end_id', help='Каким ID заканчивать скачивание книг', type=int)
 
