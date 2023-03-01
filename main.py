@@ -1,5 +1,7 @@
 import os
 import argparse
+import sys
+import time
 
 from urllib.parse import urlparse, urljoin
 
@@ -125,11 +127,19 @@ if __name__ == '__main__':
     for book_id in range(args.start_id, args.end_id):
         try:
             title, author, genre, comments = parse_book_page(book_id)
+
+            if download_book(book_id, title):
+                print(f'Название: {title}\n'
+                      f'Автор: {author}\n'
+                      f'Жанр: {genre}\n'
+                      f'Комментарии: {comments}\n\n')
+
         except TypeError:
             continue
+        except requests.exceptions.HTTPError:
+            print('Ошибка запроса на сервер\n', file=sys.stderr)
+        except requests.exceptions.ConnectionError:
+            print('Ошибка соединения', file=sys.stderr)
+            print('Попытка повторного подключения\n')
+            time.sleep(10)
 
-        if download_book(book_id, title):
-            print(f'Название: {title}\n'
-                  f'Автор: {author}\n'
-                  f'Жанр: {genre}\n'
-                  f'Комментарии: {comments}\n\n')
