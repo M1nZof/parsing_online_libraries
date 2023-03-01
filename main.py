@@ -54,8 +54,7 @@ def download_book(book_id, title):
     return True
 
 
-def download_image(book_response):
-    soup = BeautifulSoup(book_response.text, 'lxml')
+def download_image(soup):
     image_tag = soup.find('div', {'class': 'bookimage'}).select('img')
     image_endlink = [item['src'] for item in image_tag][0]
     image_name = image_endlink.split('/')[2]
@@ -68,8 +67,7 @@ def download_image(book_response):
         image.write(response.content)
 
 
-def parse_book_image(book_response):
-    soup = BeautifulSoup(book_response.text, 'lxml')
+def parse_book_image(soup):
     image_tag = soup.find('div', {'class': 'bookimage'}).select('img')
     image_endlink = [item['src'] for item in image_tag][0]
     image_link = urljoin('https://tululu.org', image_endlink)
@@ -77,8 +75,7 @@ def parse_book_image(book_response):
     return image_link
 
 
-def parse_page_comments(book_response):
-    soup = BeautifulSoup(book_response.text, 'lxml')
+def parse_page_comments(soup):
     comment_tag = soup.find_all('div', {'class': 'texts'})
 
     comments = []
@@ -89,8 +86,7 @@ def parse_page_comments(book_response):
     return comments
 
 
-def parse_book_genre(book_response):
-    soup = BeautifulSoup(book_response.text, 'lxml')
+def parse_book_genre(soup):
     genre_tag = soup.find('span', {'class': 'd_book'}).find_all('a')
 
     return [genre.text for genre in genre_tag]
@@ -103,8 +99,8 @@ def parse_book_page(book_id):
         soup = BeautifulSoup(book_page.text, 'lxml')
         title, _, author = soup.find('h1').text.split('   ')
 
-        genre = parse_book_genre(book_page)
-        comments = parse_page_comments(book_page)
+        genre = parse_book_genre(soup)
+        comments = parse_page_comments(soup)
 
         return title, author, genre, comments
 
