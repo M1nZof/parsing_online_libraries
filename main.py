@@ -86,7 +86,7 @@ def parse_page_comments(soup):
     return comments
 
 
-def parse_book_genre(soup):
+def parse_book_genres(soup):
     genre_tag = soup.find('span', {'class': 'd_book'}).find_all('a')
 
     return [genre.text for genre in genre_tag]
@@ -99,7 +99,7 @@ def parse_book_page(book_id):
         soup = BeautifulSoup(book_page.text, 'lxml')
         title, _, author = soup.find('h1').text.split('   ')
 
-        genre = parse_book_genre(soup)
+        genre = parse_book_genres(soup)
         comments = parse_page_comments(soup)
 
         return title, author, genre, comments
