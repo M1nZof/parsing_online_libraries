@@ -35,11 +35,7 @@ def download_book(book_id, title):
     response = requests.get(book_url)
     response.raise_for_status()
 
-    try:
-        download_txt(book_text_url, title)
-    except HTTPError:
-        return False
-    return True
+    return book_text_url, title
 
 
 def download_image(image_link, book_id):
@@ -116,13 +112,15 @@ if __name__ == '__main__':
                 continue
             title, author, genres, comments, image_link = parse_book_page(book_page)
 
-            if download_book(book_id, title):
-                download_image(image_link, book_id)
+            book_text_url, title = download_book(book_id, title)
+            download_txt(book_text_url, title)
 
-                print(f'Название: {title}\n'
-                      f'Автор: {author}\n'
-                      f'Жанры: {genres}\n'
-                      f'Комментарии: {comments}\n\n')
+            download_image(image_link, book_id)
+
+            print(f'Название: {title}\n'
+                  f'Автор: {author}\n'
+                  f'Жанры: {genres}\n'
+                  f'Комментарии: {comments}\n\n')
 
         except TypeError:
             print('Книга отсутствует в свободном доступе\n', file=sys.stderr)
