@@ -54,7 +54,7 @@ def download_image(image_link, book_id):
 
 def parse_book_image(soup, book_url):
     image_tag = soup.find('div', {'class': 'bookimage'}).select('img')
-    image_endlink = [item['src'] for item in image_tag][0]
+    image_endlink = image_tag[0]['src']
     image_link = urljoin(book_url, image_endlink)
 
     return image_link
