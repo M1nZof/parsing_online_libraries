@@ -80,9 +80,7 @@ def parse_book_genres(soup):
     return [genre.text for genre in genre_tag]
 
 
-def parse_book_page(book_id):
-    book_page = download_book_page(book_id)
-
+def parse_book_page(book_page):
     if book_page:
         soup = BeautifulSoup(book_page.text, 'lxml')
         title, _, author = soup.find('h1').text.split('   ')
@@ -118,7 +116,8 @@ if __name__ == '__main__':
 
     for book_id in range(args.start_id, args.end_id):
         try:
-            title, author, genre, comments, image_link = parse_book_page(book_id)
+            book_page = download_book_page(book_id)
+            title, author, genre, comments, image_link = parse_book_page(book_page)
 
             if download_book(book_id, title):
                 download_image(image_link, book_id)
