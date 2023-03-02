@@ -128,7 +128,8 @@ if __name__ == '__main__':
                       f'Жанр: {genre}\n'
                       f'Комментарии: {comments}\n\n')
 
-        except TypeError:
+        except TypeError as e:
+            print('Книга отсутствует в свободном доступе\n', file=sys.stderr)
             continue
         except HTTPError:
             print('Ошибка запроса на сервер\n', file=sys.stderr)
