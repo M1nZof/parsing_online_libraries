@@ -78,14 +78,15 @@ def parse_book_genres(soup):
 
 
 def parse_book_page(book_page):
-    soup = BeautifulSoup(book_page.text, 'lxml')
-    title, _, author = soup.find('h1').text.split('   ')
+    if book_page:
+        soup = BeautifulSoup(book_page.text, 'lxml')
+        title, _, author = soup.find('h1').text.split('   ')
 
-    image_link = parse_book_image(soup, book_page.url)
-    genre = parse_book_genres(soup)
-    comments = parse_page_comments(soup)
+        image_link = parse_book_image(soup, book_page.url)
+        genre = parse_book_genres(soup)
+        comments = parse_page_comments(soup)
 
-    return title, author, genre, comments, image_link
+        return title, author, genre, comments, image_link
 
 
 def download_book_page(book_id):
