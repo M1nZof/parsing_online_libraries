@@ -97,10 +97,6 @@ def download_book_page(book_id):
     response = requests.get(book_url)
     response.raise_for_status()
 
-    try:
-        check_for_redirect(response)
-    except HTTPError:
-        return
     return response
 
 
@@ -117,6 +113,11 @@ if __name__ == '__main__':
     for book_id in range(args.start_id, args.end_id):
         try:
             book_page = download_book_page(book_id)
+            try:
+                check_for_redirect(book_page)
+            except HTTPError:
+                print('Книга отсутствует в свободном доступе\n', file=sys.stderr)
+                continue
             title, author, genre, comments, image_link = parse_book_page(book_page)
 
             if download_book(book_id, title):
