@@ -12,28 +12,25 @@ from requests import HTTPError
 from pathvalidate import sanitize_filename
 
 
-def check_for_redirect(response, check_len=False):
-    if check_len:
-        if len(response.history) > 1:
-            raise HTTPError
-    else:
-        if response.history:
-            raise HTTPError
+def check_for_redirect(response):
+    if response.history:
+        raise HTTPError
 
 
 def download_txt(url, filename, folder='books/'):
     _, book_id = urlparse(url).query.split('=')
+    raw_book_id = book_id.replace('/', '')
     sanitazed_filename = f'{sanitize_filename(filename)}.txt'
     response = requests.get(url)
     response.raise_for_status()
 
-    with open(os.path.join(folder, f'{book_id}. {sanitazed_filename}'), 'wt', encoding='utf-8') as book:
+    with open(os.path.join(folder, f'{raw_book_id}. {sanitazed_filename}'), 'wt', encoding='utf-8') as book:
         book.write(response.text)
 
 
 def download_book(book_id, title):
     book_url = f'https://tululu.org/b{book_id}/'
-    book_text_url = f'http://tululu.org/txt.php?id={book_id}'
+    book_text_url = f'https://tululu.org/txt.php?id={book_id}/'
 
     response = requests.get(book_url)
     response.raise_for_status()
@@ -128,7 +125,7 @@ if __name__ == '__main__':
                       f'Жанр: {genre}\n'
                       f'Комментарии: {comments}\n\n')
 
-        except TypeError as e:
+        except TypeError:
             print('Книга отсутствует в свободном доступе\n', file=sys.stderr)
             continue
         except HTTPError:
