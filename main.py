@@ -72,9 +72,9 @@ def parse_page_comments(soup):
 
 
 def parse_book_genres(soup):
-    genre_tag = soup.find('span', {'class': 'd_book'}).find_all('a')
+    genres_tag = soup.find('span', {'class': 'd_book'}).find_all('a')
 
-    return [genre.text for genre in genre_tag]
+    return [genre.text for genre in genres_tag]
 
 
 def parse_book_page(book_page):
@@ -82,10 +82,10 @@ def parse_book_page(book_page):
     title, _, author = soup.find('h1').text.split('   ')
 
     image_link = parse_book_image(soup, book_page.url)
-    genre = parse_book_genres(soup)
+    genres = parse_book_genres(soup)
     comments = parse_page_comments(soup)
 
-    return title, author, genre, comments, image_link
+    return title, author, genres, comments, image_link
 
 
 def download_book_page(book_id):
@@ -114,14 +114,14 @@ if __name__ == '__main__':
             except HTTPError:
                 print('Книга отсутствует в свободном доступе\n', file=sys.stderr)
                 continue
-            title, author, genre, comments, image_link = parse_book_page(book_page)
+            title, author, genres, comments, image_link = parse_book_page(book_page)
 
             if download_book(book_id, title):
                 download_image(image_link, book_id)
 
                 print(f'Название: {title}\n'
                       f'Автор: {author}\n'
-                      f'Жанр: {genre}\n'
+                      f'Жанры: {genres}\n'
                       f'Комментарии: {comments}\n\n')
 
         except TypeError:
