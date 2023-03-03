@@ -22,7 +22,9 @@ def download_txt(url, book_id, filename, folder='books/'):
     response = requests.get(url)
     response.raise_for_status()
 
-    with open(os.path.join(folder, f'{book_id}. {sanitazed_filename}'), 'wt', encoding='utf-8') as book:
+    book_path = os.path.join(folder, f'{book_id}. {sanitazed_filename}')
+
+    with open(book_path, 'wt', encoding='utf-8') as book:
         book.write(response.text)
 
 
