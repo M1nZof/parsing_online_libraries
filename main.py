@@ -3,6 +3,7 @@ import argparse
 import sys
 import time
 import urllib
+from textwrap import dedent
 
 from urllib.parse import urlparse, urljoin
 
@@ -21,6 +22,7 @@ def download_txt(url, book_id, filename, folder='books/'):
     sanitazed_filename = f'{sanitize_filename(filename)}.txt'
     response = requests.get(url)
     response.raise_for_status()
+    check_for_redirect(response)
 
     book_path = os.path.join(folder, f'{book_id}. {sanitazed_filename}')
 
@@ -96,11 +98,16 @@ if __name__ == '__main__':
 
             download_txt(book_text_url, book_id, title)
             download_image(image_link, book_id)
+            text = f'''
+                    ----------------------------------------------------------------
+                    Название: {title}
+                    Автор: {author}
+                    Жанры: {genres}
+                    Комментарии: {comments}
+                    ----------------------------------------------------------------\n
+                    '''
 
-            print(f'Название: {title}\n'
-                  f'Автор: {author}\n'
-                  f'Жанры: {genres}\n'
-                  f'Комментарии: {comments}\n\n')
+            print(dedent(text))
 
         except HTTPError:
             print('Книга отсутствует в свободном доступе\n', file=sys.stderr)
