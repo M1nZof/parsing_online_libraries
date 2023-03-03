@@ -84,14 +84,6 @@ def parse_book_page(book_page):
     return title, author, genres, comments, image_link
 
 
-def download_book_page(book_id):
-    book_url = f'https://tululu.org/b{book_id}/'
-    response = requests.get(book_url)
-    response.raise_for_status()
-
-    return response
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Скрипт загрузки книг с сайта https://tululu.org')
     parser.add_argument('start_id', help='С какого ID начинать скачивание книг', type=int)
@@ -104,8 +96,11 @@ if __name__ == '__main__':
 
     for book_id in range(args.start_id, args.end_id):
         try:
-            book_page = download_book_page(book_id)
-            title, author, genres, comments, image_link = parse_book_page(book_page)
+            book_url = f'https://tululu.org/b{book_id}/'
+            book_page_response = requests.get(book_url)
+            book_page_response.raise_for_status()
+            check_for_redirect(book_page_response)
+            title, author, genres, comments, image_link = parse_book_page(book_page_response)
 
             book_text_url, title = download_book(book_id, title)
             download_txt(book_text_url, title)
