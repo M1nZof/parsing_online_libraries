@@ -105,11 +105,6 @@ if __name__ == '__main__':
     for book_id in range(args.start_id, args.end_id):
         try:
             book_page = download_book_page(book_id)
-            try:
-                check_for_redirect(book_page)
-            except HTTPError:
-                print('Книга отсутствует в свободном доступе\n', file=sys.stderr)
-                continue
             title, author, genres, comments, image_link = parse_book_page(book_page)
 
             book_text_url, title = download_book(book_id, title)
@@ -122,13 +117,10 @@ if __name__ == '__main__':
                   f'Жанры: {genres}\n'
                   f'Комментарии: {comments}\n\n')
 
-        except TypeError:
+        except HTTPError:
             print('Книга отсутствует в свободном доступе\n', file=sys.stderr)
             continue
-        except HTTPError:
-            print('Ошибка запроса на сервер\n', file=sys.stderr)
         except requests.exceptions.ConnectionError:
             print('Ошибка соединения', file=sys.stderr)
             print('Попытка повторного подключения\n')
             time.sleep(10)
-
