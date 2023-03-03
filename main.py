@@ -17,14 +17,12 @@ def check_for_redirect(response):
         raise HTTPError
 
 
-def download_txt(url, filename, folder='books/'):
-    _, book_id = urlparse(url).query.split('=')
-    raw_book_id = book_id.replace('/', '')
+def download_txt(url, book_id, filename, folder='books/'):
     sanitazed_filename = f'{sanitize_filename(filename)}.txt'
     response = requests.get(url)
     response.raise_for_status()
 
-    with open(os.path.join(folder, f'{raw_book_id}. {sanitazed_filename}'), 'wt', encoding='utf-8') as book:
+    with open(os.path.join(folder, f'{book_id}. {sanitazed_filename}'), 'wt', encoding='utf-8') as book:
         book.write(response.text)
 
 
@@ -93,8 +91,8 @@ if __name__ == '__main__':
             check_for_redirect(book_page_response)
 
             title, author, genres, comments, image_link = parse_book_page(book_page_response)
-            
-            download_txt(book_text_url, title)
+
+            download_txt(book_text_url, book_id, title)
             download_image(image_link, book_id)
 
             print(f'Название: {title}\n'
