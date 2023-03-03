@@ -28,16 +28,6 @@ def download_txt(url, filename, folder='books/'):
         book.write(response.text)
 
 
-def download_book(book_id, title):
-    book_url = f'https://tululu.org/b{book_id}/'
-    book_text_url = f'https://tululu.org/txt.php?id={book_id}/'
-
-    response = requests.get(book_url)
-    response.raise_for_status()
-
-    return book_text_url, title
-
-
 def download_image(image_link, book_id):
     response = requests.get(image_link)
     response.raise_for_status()
@@ -95,16 +85,16 @@ if __name__ == '__main__':
     os.makedirs('images', exist_ok=True)
 
     for book_id in range(args.start_id, args.end_id):
+        book_url = f'https://tululu.org/b{book_id}/'
+        book_text_url = f'https://tululu.org/txt.php?id={book_id}/'
         try:
-            book_url = f'https://tululu.org/b{book_id}/'
             book_page_response = requests.get(book_url)
             book_page_response.raise_for_status()
             check_for_redirect(book_page_response)
+
             title, author, genres, comments, image_link = parse_book_page(book_page_response)
-
-            book_text_url, title = download_book(book_id, title)
+            
             download_txt(book_text_url, title)
-
             download_image(image_link, book_id)
 
             print(f'Название: {title}\n'
