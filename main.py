@@ -2,7 +2,6 @@ import os
 import argparse
 import sys
 import time
-import urllib
 from textwrap import dedent
 
 from urllib.parse import urlparse, urljoin
@@ -30,7 +29,7 @@ def download_txt(url, book_id, filename, folder='books/'):
         book.write(response.text)
 
 
-def download_image(image_link, book_id):
+def download_image(image_link):
     response = requests.get(image_link)
     response.raise_for_status()
 
@@ -97,7 +96,7 @@ if __name__ == '__main__':
             title, author, genres, comments, image_link = parse_book_page(book_page_response)
 
             download_txt(book_text_url, book_id, title)
-            download_image(image_link, book_id)
+            download_image(image_link)
             text = f'''
                     ----------------------------------------------------------------
                     Название: {title}
