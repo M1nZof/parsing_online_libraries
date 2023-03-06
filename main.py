@@ -2,6 +2,7 @@ import os
 import argparse
 import sys
 import time
+from textwrap import dedent
 
 from urllib.parse import urlparse, urljoin
 
@@ -16,28 +17,19 @@ def check_for_redirect(response):
         raise HTTPError
 
 
-def download_txt(url, filename, folder='books/'):
-    _, book_id = urlparse(url).query.split('=')
-    raw_book_id = book_id.replace('/', '')
+def download_txt(url, book_id, filename, folder='books/'):
     sanitazed_filename = f'{sanitize_filename(filename)}.txt'
     response = requests.get(url)
     response.raise_for_status()
+    check_for_redirect(response)
 
-    with open(os.path.join(folder, f'{raw_book_id}. {sanitazed_filename}'), 'wt', encoding='utf-8') as book:
+    book_path = os.path.join(folder, f'{book_id}. {sanitazed_filename}')
+
+    with open(book_path, 'wt', encoding='utf-8') as book:
         book.write(response.text)
 
 
-def download_book(book_id, title):
-    book_url = f'https://tululu.org/b{book_id}/'
-    book_text_url = f'https://tululu.org/txt.php?id={book_id}/'
-
-    response = requests.get(book_url)
-    response.raise_for_status()
-
-    return book_text_url, title
-
-
-def download_image(image_link, book_id):
+def download_image(image_link):
     response = requests.get(image_link)
     response.raise_for_status()
 
@@ -83,14 +75,6 @@ def parse_book_page(book_page):
     return title, author, genres, comments, image_link
 
 
-def download_book_page(book_id):
-    book_url = f'https://tululu.org/b{book_id}/'
-    response = requests.get(book_url)
-    response.raise_for_status()
-
-    return response
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Скрипт загрузки книг с сайта https://tululu.org')
     parser.add_argument('start_id', help='С какого ID начинать скачивание книг', type=int)
@@ -102,32 +86,32 @@ if __name__ == '__main__':
     os.makedirs('images', exist_ok=True)
 
     for book_id in range(args.start_id, args.end_id):
+        book_url = f'https://tululu.org/b{book_id}/'
+        book_text_url = f'https://tululu.org/txt.php?id={book_id}/'
         try:
-            book_page = download_book_page(book_id)
-            try:
-                check_for_redirect(book_page)
-            except HTTPError:
-                print('Книга отсутствует в свободном доступе\n', file=sys.stderr)
-                continue
-            title, author, genres, comments, image_link = parse_book_page(book_page)
+            book_page_response = requests.get(book_url)
+            book_page_response.raise_for_status()
+            check_for_redirect(book_page_response)
 
-            book_text_url, title = download_book(book_id, title)
-            download_txt(book_text_url, title)
+            title, author, genres, comments, image_link = parse_book_page(book_page_response)
 
-            download_image(image_link, book_id)
+            download_txt(book_text_url, book_id, title)
+            download_image(image_link)
+            text = f'''
+                    ----------------------------------------------------------------
+                    Название: {title}
+                    Автор: {author}
+                    Жанры: {genres}
+                    Комментарии: {comments}
+                    ----------------------------------------------------------------\n
+                    '''
 
-            print(f'Название: {title}\n'
-                  f'Автор: {author}\n'
-                  f'Жанры: {genres}\n'
-                  f'Комментарии: {comments}\n\n')
+            print(dedent(text))
 
-        except TypeError:
+        except HTTPError:
             print('Книга отсутствует в свободном доступе\n', file=sys.stderr)
             continue
-        except HTTPError:
-            print('Ошибка запроса на сервер\n', file=sys.stderr)
         except requests.exceptions.ConnectionError:
             print('Ошибка соединения', file=sys.stderr)
             print('Попытка повторного подключения\n')
             time.sleep(10)
-
