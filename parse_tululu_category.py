@@ -16,13 +16,13 @@ if __name__ == '__main__':
     parser.add_argument('end_page', help='Какой страницей заканчивать скачивание книг', type=int, default=2)
     parser.add_argument('--dest_folder', '-d',
                         help='Путь для сохранения книг, картинок, json (указывается через пробел)',
-                        type=str, default='books images json')
+                        type=str, default='books_images_json')
     parser.add_argument('--skip_imgs', '-i', help='Пропускать загрузку картинок? (1/0)', type=int, default=0)
     parser.add_argument('--skip_txt', '-t', help='Пропускать загрузку книги? (1/0)', type=int, default=0)
-    # parser.add_argument('--json_path', help='Путь сбора данных для .json файлов', type=str, default='-')
+    # parser.add_argument('--json_path', '-j', help='Путь сбора данных для .json файлов', type=str, default='-')
 
     args = parser.parse_args()
-    folders = args.dest_folder.split(' ')
+    folders = args.dest_folder.split('_')
 
     for folder_name in folders:
         os.makedirs(folder_name, exist_ok=True)
