@@ -2,7 +2,6 @@ import os
 import argparse
 import sys
 import time
-import urllib
 
 from urllib.parse import urlparse, urljoin
 
