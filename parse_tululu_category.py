@@ -20,10 +20,10 @@ if __name__ == '__main__':
         response.raise_for_status()
 
         soup = BeautifulSoup(response.text, 'lxml')
-        parsed_content = soup.find('div', {'id': 'content'}).find_all('table', {'class': 'd_book'})
+        parsed_content = soup.select('#content .d_book .bookimage a')
 
         for book_tag in parsed_content:
-            book_endlink = book_tag.find_next('a')['href']
+            book_endlink = book_tag['href']
             book_url = urljoin(genre_url, book_endlink)
             book_id = book_endlink.replace('/', '').replace('b', '')
             book_text_url = f'https://tululu.org/txt.php?id={book_id}/'
@@ -31,7 +31,6 @@ if __name__ == '__main__':
             try:
                 book_page_response = requests.get(book_url)
                 book_page_response.raise_for_status()
-                check_for_redirect(book_page_response)
 
                 title, author, genres, comments, image_link = parse_book_page(book_page_response)
 
