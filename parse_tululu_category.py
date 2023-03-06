@@ -14,13 +14,21 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Скрипт загрузки книг научной фантастики с сайта https://tululu.org')
     parser.add_argument('start_page', help='С какой страницы начинать скачивание книг', type=int, default=1)
     parser.add_argument('end_page', help='Какой страницей заканчивать скачивание книг', type=int, default=2)
+    parser.add_argument('--dest_folder', '-d',
+                        help='Путь для сохранения книг, картинок, json (указывается через пробел)',
+                        type=str, default='books images json')
+    parser.add_argument('--skip_imgs', '-i', help='Пропускать загрузку картинок? (1/0)', type=int, default=0)
+    parser.add_argument('--skip_txt', '-t', help='Пропускать загрузку книги? (1/0)', type=int, default=0)
+    # parser.add_argument('--json_path', help='Путь сбора данных для .json файлов', type=str, default='-')
 
     args = parser.parse_args()
+    folders = args.dest_folder.split(' ')
 
-    os.makedirs('books', exist_ok=True)
-    os.makedirs('images', exist_ok=True)
+    for folder_name in folders:
+        os.makedirs(folder_name, exist_ok=True)
 
     for page in range(args.start_page, args.end_page):
+        # if not os.path.exists(args.json_path):
         genre_url = 'http://tululu.org/l55/'
         page_url = urljoin(genre_url, str(page))
         response = requests.get(page_url)
@@ -41,9 +49,11 @@ if __name__ == '__main__':
 
                 title, author, genres, comments, image_link = parse_book_page(book_page_response)
 
-                download_txt(book_text_url, book_id, title)
+                if args.skip_txt == 0:
+                    download_txt(book_text_url, book_id, title)
 
-                download_image(image_link)
+                if args.skip_imgs == 0:
+                    download_image(image_link)
 
                 print(f'Название: {title}\n'
                       f'Автор: {author}\n'
