@@ -3,7 +3,7 @@ import json
 import os
 import sys
 import time
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
@@ -29,10 +29,11 @@ if __name__ == '__main__':
         os.makedirs(folder_name, exist_ok=True)
 
     for page in range(args.start_page, args.end_page):
-        genre_url = 'http://tululu.org/l55/'
-        page_url = urljoin(genre_url, str(page))
+        genre_url = 'https://tululu.org/l55/'
+        page_url = urljoin(genre_url, f'{page}/')
         response = requests.get(page_url)
         response.raise_for_status()
+        check_for_redirect(response)
 
         soup = BeautifulSoup(response.text, 'lxml')
         parsed_content = soup.select('#content .d_book .bookimage a')
@@ -46,6 +47,7 @@ if __name__ == '__main__':
             try:
                 book_page_response = requests.get(book_url)
                 book_page_response.raise_for_status()
+                check_for_redirect(book_page_response)
 
                 title, author, genres, comments, image_link = parse_book_page(book_page_response)
                 if os.path.exists(args.json_path):
