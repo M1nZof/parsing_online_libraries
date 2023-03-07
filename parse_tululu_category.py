@@ -36,9 +36,9 @@ if __name__ == '__main__':
         check_for_redirect(response)
 
         soup = BeautifulSoup(response.text, 'lxml')
-        parsed_content = soup.select('#content .d_book .bookimage a')
+        books_on_page = soup.select('#content .d_book .bookimage a')
 
-        for book_tag in parsed_content:
+        for book_tag in books_on_page:
             book_endlink = book_tag['href']
             book_url = urljoin(genre_url, book_endlink)
             book_id = book_endlink.replace('/', '').replace('b', '')
