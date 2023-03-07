@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import sys
 import time
@@ -19,7 +20,7 @@ if __name__ == '__main__':
                         type=str, default='books_images_json')
     parser.add_argument('--skip_imgs', '-i', help='Пропускать загрузку картинок? (1/0)', type=int, default=0)
     parser.add_argument('--skip_txt', '-t', help='Пропускать загрузку книги? (1/0)', type=int, default=0)
-    # parser.add_argument('--json_path', '-j', help='Путь сбора данных для .json файлов', type=str, default='-')
+    parser.add_argument('--json_path', '-j', help='Путь сбора данных для .json файлов', type=str, default='-')
 
     args = parser.parse_args()
     folders = args.dest_folder.split('_')
@@ -28,7 +29,6 @@ if __name__ == '__main__':
         os.makedirs(folder_name, exist_ok=True)
 
     for page in range(args.start_page, args.end_page):
-        # if not os.path.exists(args.json_path):
         genre_url = 'http://tululu.org/l55/'
         page_url = urljoin(genre_url, str(page))
         response = requests.get(page_url)
@@ -48,6 +48,17 @@ if __name__ == '__main__':
                 book_page_response.raise_for_status()
 
                 title, author, genres, comments, image_link = parse_book_page(book_page_response)
+                if os.path.exists(args.json_path):
+                    book_json = {
+                        'title': title,
+                        'author': author,
+                        'genres': genres,
+                        'comments': comments,
+                        'image_link': image_link
+                    }
+
+                    with open('books.json', 'a') as file:
+                        json.dump(book_json, file, indent=4, ensure_ascii=False)
 
                 if args.skip_txt == 0:
                     download_txt(book_text_url, book_id, title)
