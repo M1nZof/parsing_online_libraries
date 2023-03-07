@@ -18,8 +18,8 @@ if __name__ == '__main__':
     parser.add_argument('--dest_folder', '-d',
                         help='Путь для сохранения книг, картинок, json (указывается через пробел)',
                         type=str, default='books_images_json')
-    parser.add_argument('--skip_imgs', '-i', help='Пропускать загрузку картинок? (1/0)', type=int, default=0)
-    parser.add_argument('--skip_txt', '-t', help='Пропускать загрузку книги? (1/0)', type=int, default=0)
+    parser.add_argument('--skip_imgs', '-i', help='Пропускать загрузку картинок? (1, если ДА)', type=int, default=False)
+    parser.add_argument('--skip_txt', '-t', help='Пропускать загрузку книги? (1, если ДА)', type=int, default=False)
     parser.add_argument('--json_path', '-j', help='Путь сбора данных для .json файлов', type=str, default='-')
 
     args = parser.parse_args()
@@ -62,10 +62,10 @@ if __name__ == '__main__':
                     with open('books.json', 'a') as file:
                         json.dump(book_json, file, indent=4, ensure_ascii=False)
 
-                if args.skip_txt == 0:
+                if not args.skip_txt:
                     download_txt(book_text_url, book_id, title)
 
-                if args.skip_imgs == 0:
+                if not args.skip_imgs:
                     download_image(image_link)
 
                 print(f'Название: {title}\n'
