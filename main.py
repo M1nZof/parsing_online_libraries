@@ -19,7 +19,7 @@ def check_for_redirect(response):
 
 def download_txt(url, book_id, filename, folder='books/'):
     sanitazed_filename = f'{sanitize_filename(filename)}.txt'
-    response = requests.get(url)
+    response = requests.get(url, params={'id': book_id})
     response.raise_for_status()
     check_for_redirect(response)
 

@@ -42,7 +42,7 @@ if __name__ == '__main__':
             book_endlink = book_tag['href']
             book_url = urljoin(genre_url, book_endlink)
             book_id = book_endlink.replace('/', '').replace('b', '')
-            book_text_url = f'https://tululu.org/txt.php?id={book_id}/'
+            book_text_url = f'https://tululu.org/txt.php'
 
             try:
                 book_page_response = requests.get(book_url)
