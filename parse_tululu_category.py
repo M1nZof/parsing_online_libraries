@@ -39,12 +39,12 @@ if __name__ == '__main__':
         books_on_page = soup.select('#content .d_book .bookimage a')
 
         for book_tag in books_on_page:
-            book_endlink = book_tag['href']
-            book_url = urljoin(genre_url, book_endlink)
-            book_id = book_endlink.replace('/', '').replace('b', '')
-            book_text_url = f'https://tululu.org/txt.php'
-
             try:
+                book_endlink = book_tag['href']
+                book_url = urljoin(genre_url, book_endlink)
+                book_id = book_endlink.replace('/', '').replace('b', '')
+                book_text_url = f'https://tululu.org/txt.php'
+
                 book_page_response = requests.get(book_url)
                 book_page_response.raise_for_status()
                 check_for_redirect(book_page_response)
