@@ -36,8 +36,15 @@ if __name__ == '__main__':
         genre_url = 'https://tululu.org/l55/'
         page_url = urljoin(genre_url, f'{page_number}/')
         response = requests.get(page_url)
-        response.raise_for_status()
-        check_for_redirect(response)
+        try:
+            response.raise_for_status()
+            check_for_redirect(response)
+        except HTTPError:
+            print('Ошибка запроса на сервер\n', file=sys.stderr)
+        except requests.exceptions.ConnectionError:
+            print('Ошибка соединения', file=sys.stderr)
+            print('Попытка повторного подключения\n')
+            time.sleep(10)
 
         soup = BeautifulSoup(response.text, 'lxml')
         books_on_page = soup.select('#content .d_book .bookimage a')
