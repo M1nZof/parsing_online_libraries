@@ -30,9 +30,9 @@ if __name__ == '__main__':
     os.makedirs(args.book_images, exist_ok=True)
     os.makedirs(args.book_json, exist_ok=True)
 
-    for page in range(args.start_page, args.end_page):
+    for page_number in range(args.start_page, args.end_page):
         genre_url = 'https://tululu.org/l55/'
-        page_url = urljoin(genre_url, f'{page}/')
+        page_url = urljoin(genre_url, f'{page_number}/')
         response = requests.get(page_url)
         response.raise_for_status()
         check_for_redirect(response)
