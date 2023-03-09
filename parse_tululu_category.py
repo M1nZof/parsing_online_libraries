@@ -18,9 +18,10 @@ if __name__ == '__main__':
     parser.add_argument('--book_folder', '-b', help='Путь для сохранения книг', type=str, default='books')
     parser.add_argument('--book_images', '-i', help='Путь для сохранения картинок', type=str, default='images')
     parser.add_argument('--book_json', '-j', help='Путь для сохранения json', type=str, default='json')
-    parser.add_argument('--skip_imgs', '-si', help='Пропускать загрузку картинок? (1, если ДА)',
-                        type=int, default=False)
-    parser.add_argument('--skip_txt', '-t', help='Пропускать загрузку книги? (1, если ДА)', type=int, default=False)
+    parser.add_argument('--skip_imgs', help='Пропускать загрузку картинок?',
+                        action='store_true', default=False)
+    parser.add_argument('--skip_txt', help='Пропускать загрузку книги?',
+                        action='store_true', default=False)
     parser.add_argument('--json_path', '-jp', help='Путь сбора данных для .json файлов', type=str, default='-')
 
     args = parser.parse_args()

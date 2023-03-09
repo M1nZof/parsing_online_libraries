@@ -51,9 +51,9 @@
 - `book_folder`, `b` - Путь для сохранения книг (по умолчанию - books);
 - `book_images`, `i`, Путь для сохранения картинок (по умолчанию - images); 
 - `book_json`, `j`, Путь для сохранения json (по умолчанию - json);
-- `skip_imgs`, `i` - Пропускать загрузку картинок?;
-- `skip_txt`, `t` - Пропускать загрузку книги?;
-- `json_path`, `j` - Путь сбора данных для .json файлов.
+- `skip_imgs` - Пропускать загрузку картинок?;
+- `skip_txt` - Пропускать загрузку книги?;
+- `json_path`, `jp` - Путь сбора данных для .json файлов.
 
 `python parse_tululu_category.py --start_page --end_page`
 
@@ -65,12 +65,12 @@
 
 - Загрузка первой страницы в папки: `books`, `images`, `json`:
 
-`python parse_tululu_category.py 1 2 -d books_images_json`
+`python parse_tululu_category.py 1 2 -b books -i images -j json`
 
 - Просмотр информации о книгах без загрузки картинок и книг на 4 и 5 странице:
 
-`python parse_tululu_category.py 4 6 -i 1 -t 1`
+`python parse_tululu_category.py 4 6 --skip_imgs --skip_txt`
 
 - Скачивание книг с 20 по 24 страницу сохраняя данные о книгах в директорию со скриптом в файле books.json
 
-`python .\parse_tululu_category.py 20 25 -j .`
+`python .\parse_tululu_category.py 20 25 -jp .`
