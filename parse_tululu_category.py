@@ -15,18 +15,19 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Скрипт загрузки книг научной фантастики с сайта https://tululu.org')
     parser.add_argument('start_page', help='С какой страницы начинать скачивание книг', type=int, default=1)
     parser.add_argument('end_page', help='Какой страницей заканчивать скачивание книг', type=int, default=2)
-    parser.add_argument('--dest_folder', '-d',
-                        help='Путь для сохранения книг, картинок, json (указывается через пробел)',
-                        type=str, default='books_images_json')
-    parser.add_argument('--skip_imgs', '-i', help='Пропускать загрузку картинок? (1, если ДА)', type=int, default=False)
+    parser.add_argument('--book_folder', '-b', help='Путь для сохранения книг', type=str, default='books')
+    parser.add_argument('--book_images', '-i', help='Путь для сохранения картинок', type=str, default='images')
+    parser.add_argument('--book_json', '-j', help='Путь для сохранения json', type=str, default='json')
+    parser.add_argument('--skip_imgs', '-si', help='Пропускать загрузку картинок? (1, если ДА)',
+                        type=int, default=False)
     parser.add_argument('--skip_txt', '-t', help='Пропускать загрузку книги? (1, если ДА)', type=int, default=False)
-    parser.add_argument('--json_path', '-j', help='Путь сбора данных для .json файлов', type=str, default='-')
+    parser.add_argument('--json_path', '-jp', help='Путь сбора данных для .json файлов', type=str, default='-')
 
     args = parser.parse_args()
-    folders = args.dest_folder.split('_')
 
-    for folder_name in folders:
-        os.makedirs(folder_name, exist_ok=True)
+    os.makedirs(args.book_folder, exist_ok=True)
+    os.makedirs(args.book_images, exist_ok=True)
+    os.makedirs(args.book_json, exist_ok=True)
 
     for page in range(args.start_page, args.end_page):
         genre_url = 'https://tululu.org/l55/'
