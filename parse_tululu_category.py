@@ -22,7 +22,6 @@ if __name__ == '__main__':
                         action='store_true', default=False)
     parser.add_argument('--skip_txt', help='Пропускать загрузку книги?',
                         action='store_true', default=False)
-    parser.add_argument('--json_path', '-jp', help='Путь сбора данных для .json файлов', type=str, default='-')
 
     args = parser.parse_args()
 
@@ -30,7 +29,7 @@ if __name__ == '__main__':
     os.makedirs(args.book_images, exist_ok=True)
     os.makedirs(args.book_json, exist_ok=True)
 
-    books = {}
+    books = []
 
     for page_number in range(args.start_page, args.end_page):
         genre_url = 'https://tululu.org/l55/'
@@ -54,13 +53,15 @@ if __name__ == '__main__':
                     check_for_redirect(book_page_response)
 
                     title, author, genres, comments, image_link = parse_book_page(book_page_response)
-                    if os.path.exists(args.json_path):
-                        books[title] = {
+                    books.append(
+                        {
+                            'title': title,
                             'author': author,
                             'genres': genres,
                             'comments': comments,
                             'image_link': image_link
                         }
+                    )
 
                     if not args.skip_txt:
                         download_txt(book_text_url, book_id, title)
@@ -86,6 +87,6 @@ if __name__ == '__main__':
             print('Попытка повторного подключения\n')
             time.sleep(10)
 
-    if os.path.exists(args.json_path):
-        with open('books.json', 'a') as file:
-            json.dump(books, file, indent=4, ensure_ascii=False)
+    json_path = os.path.join(args.book_json, 'books.json')
+    with open(json_path, 'a') as file:
+        json.dump(books, file, indent=4, ensure_ascii=False)
