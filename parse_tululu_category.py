@@ -35,57 +35,56 @@ if __name__ == '__main__':
     for page_number in range(args.start_page, args.end_page):
         genre_url = 'https://tululu.org/l55/'
         page_url = urljoin(genre_url, f'{page_number}/')
-        response = requests.get(page_url)
         try:
+            response = requests.get(page_url)
             response.raise_for_status()
             check_for_redirect(response)
-        except HTTPError:
-            print('Ошибка запроса на сервер\n', file=sys.stderr)
-        except requests.exceptions.ConnectionError:
-            print('Ошибка соединения', file=sys.stderr)
-            print('Попытка повторного подключения\n')
-            time.sleep(10)
+            soup = BeautifulSoup(response.text, 'lxml')
+            books_on_page = soup.select('#content .d_book .bookimage a')
 
-        soup = BeautifulSoup(response.text, 'lxml')
-        books_on_page = soup.select('#content .d_book .bookimage a')
+            for book_tag in books_on_page:
+                try:
+                    book_endlink = book_tag['href']
+                    book_url = urljoin(genre_url, book_endlink)
+                    book_id = book_endlink.replace('/', '').replace('b', '')
+                    book_text_url = f'https://tululu.org/txt.php'
 
-        for book_tag in books_on_page:
-            try:
-                book_endlink = book_tag['href']
-                book_url = urljoin(genre_url, book_endlink)
-                book_id = book_endlink.replace('/', '').replace('b', '')
-                book_text_url = f'https://tululu.org/txt.php'
+                    book_page_response = requests.get(book_url)
+                    book_page_response.raise_for_status()
+                    check_for_redirect(book_page_response)
 
-                book_page_response = requests.get(book_url)
-                book_page_response.raise_for_status()
-                check_for_redirect(book_page_response)
-
-                title, author, genres, comments, image_link = parse_book_page(book_page_response)
-                if os.path.exists(args.json_path):
-                    book[title] = {
+                    title, author, genres, comments, image_link = parse_book_page(book_page_response)
+                    if os.path.exists(args.json_path):
+                        book[title] = {
                             'author': author,
                             'genres': genres,
                             'comments': comments,
                             'image_link': image_link
                         }
 
-                if not args.skip_txt:
-                    download_txt(book_text_url, book_id, title)
+                    if not args.skip_txt:
+                        download_txt(book_text_url, book_id, title)
 
-                if not args.skip_imgs:
-                    download_image(image_link)
+                    if not args.skip_imgs:
+                        download_image(image_link)
 
-                print(f'Название: {title}\n'
-                      f'Автор: {author}\n'
-                      f'Жанры: {genres}\n'
-                      f'Комментарии: {comments}\n\n')
+                    print(f'Название: {title}\n'
+                          f'Автор: {author}\n'
+                          f'Жанры: {genres}\n'
+                          f'Комментарии: {comments}\n\n')
 
-            except HTTPError:
-                print('Ошибка запроса на сервер\n', file=sys.stderr)
-            except requests.exceptions.ConnectionError:
-                print('Ошибка соединения', file=sys.stderr)
-                print('Попытка повторного подключения\n')
-                time.sleep(10)
+                except HTTPError:
+                    print('Ошибка запроса на сервер\n', file=sys.stderr)
+                except requests.exceptions.ConnectionError:
+                    print('Ошибка соединения', file=sys.stderr)
+                    print('Попытка повторного подключения\n')
+                    time.sleep(10)
+        except HTTPError:
+            print('Ошибка запроса на сервер\n', file=sys.stderr)
+        except requests.exceptions.ConnectionError:
+            print('Ошибка соединения', file=sys.stderr)
+            print('Попытка повторного подключения\n')
+            time.sleep(10)
 
     if os.path.exists(args.json_path):
         with open('books.json', 'a') as file:
