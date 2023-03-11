@@ -30,7 +30,7 @@ if __name__ == '__main__':
     os.makedirs(args.book_images, exist_ok=True)
     os.makedirs(args.book_json, exist_ok=True)
 
-    book = {}
+    books = {}
 
     for page_number in range(args.start_page, args.end_page):
         genre_url = 'https://tululu.org/l55/'
@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
                     title, author, genres, comments, image_link = parse_book_page(book_page_response)
                     if os.path.exists(args.json_path):
-                        book[title] = {
+                        books[title] = {
                             'author': author,
                             'genres': genres,
                             'comments': comments,
@@ -88,4 +88,4 @@ if __name__ == '__main__':
 
     if os.path.exists(args.json_path):
         with open('books.json', 'a') as file:
-            json.dump(book, file, indent=4, ensure_ascii=False)
+            json.dump(books, file, indent=4, ensure_ascii=False)
